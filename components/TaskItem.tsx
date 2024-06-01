@@ -4,13 +4,13 @@ import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 
-export default function Task({ task }) {
+export default function TaskItem({ task }) {
   const [done, setDone] = useState(task.isDone);
   const db = useSQLiteContext();
 
   // do updation when leaving all tasks screen
   async function updateTask() {
-    await db.runAsync("UPDATE tasks SET isDone = ? WHERE id = ?", [
+    await db.runAsync("UPDATE Tasks SET isDone = ? WHERE id = ?", [
       done,
       task.id,
     ]);
@@ -34,7 +34,9 @@ export default function Task({ task }) {
       <View className="mx-2">{icon}</View>
 
       <View className="flex-1 flex-row ml-2 text-left">
-        <Text className=" font-bold">{task.content}</Text>
+        <Text className=" font-bold">
+          {task.content} - {task.category}
+        </Text>
       </View>
     </Pressable>
   );
@@ -45,8 +47,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "black",
     height: 60,
     marginBottom: 10,
     paddingHorizontal: 6,

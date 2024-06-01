@@ -2,7 +2,7 @@
 module.exports = {
   content: [
     "./App.{js,jsx,ts,tsx}",
-    "./components/Task.tsx",
+    "./components/TaskItem.tsx",
     "./components/TaskList.tsx",
     "./screens/Home.tsx",
     "./screens/AllTasks.tsx",

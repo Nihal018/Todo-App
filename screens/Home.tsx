@@ -8,15 +8,26 @@ export default function Home({ navigation }) {
 
   async function insertTask(task) {
     const result = await db.runAsync(
-      "INSERT INTO tasks (content,isDone) VALUES (?,?)",
-      [task.content, task.isDone]
+      "INSERT INTO Tasks (content,isDone,category) VALUES (?,?,?)",
+      [task.content, task.isDone, task.category]
     );
   }
 
   async function addHandler() {
+    const arr = inputText.split("/");
+    let cat = "";
+    let content = "";
+    if (arr.length == 2) {
+      cat = arr[0].trim();
+      content = arr[1].trim();
+    } else {
+      content = arr[0].trim();
+    }
+
     const task = {
-      content: inputText,
+      content: content,
       isDone: false,
+      category: cat,
     };
     await insertTask(task);
 
@@ -55,11 +66,26 @@ export default function Home({ navigation }) {
             style={({ pressed }) => [pressed && styles.pressed]}
             onPress={addHandler}
           >
-            <View style={styles.button} className="bg-blue-400 w-20 h-12">
+            <View style={styles.button} className="bg-blue-500 w-20 h-12">
               <Text className="text-white text-center font-bold mt-1">Add</Text>
             </View>
           </Pressable>
         </View>
+      </View>
+
+      <View className="mx-auto my-40">
+        <Pressable
+          style={({ pressed }) => [pressed && styles.pressed]}
+          onPress={() => {
+            navigation.navigate("AllTasks");
+          }}
+        >
+          <View style={styles.button} className="bg-gray-600 w-20 h-12">
+            <Text className="text-white text-center font-bold mt-1">
+              All Tasks
+            </Text>
+          </View>
+        </Pressable>
       </View>
     </View>
   );

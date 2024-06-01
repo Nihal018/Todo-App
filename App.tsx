@@ -13,19 +13,20 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [dbInitialized, setDbInitialized] = useState(false);
   async function init() {
-    const db = await SQLite.openDatabaseAsync("tasks.db");
+    const db = await SQLite.openDatabaseAsync("Tasks.db");
     await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS tasks(
+    CREATE TABLE IF NOT EXISTS Tasks(
         id INTEGER PRIMARY KEY NOT NULL,
         content TEXT NOT NULL,
-        isDone BOOLEAN NOT NULL
+        isDone BOOLEAN NOT NULL,
+        category TEXT
     )`);
   }
 
   return (
     <NavigationContainer>
       <StatusBar style="dark" />
-      <SQLiteProvider databaseName="tasks.db" onInit={init}>
+      <SQLiteProvider databaseName="Tasks.db" onInit={init}>
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen
             name="Home"
