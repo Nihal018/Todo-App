@@ -1,18 +1,23 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, Button, View } from "react-native";
 import TaskList from "../components/TaskList";
 import { useSQLiteContext } from "expo-sqlite";
+import { Task } from "../models/tasks";
 
 export default function AllTasks() {
-  async function fetchTasks() {
-    const db = useSQLiteContext();
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-    const allRows = await db.getAllAsync("SELECT * FROM tasks ");
-    console.log(allRows);
-    return allRows;
-  }
+  const db = useSQLiteContext();
 
-  const tasks = fetchTasks();
+  useEffect(() => {
+    async function fetchTasks() {
+      const allRows = await db.getAllAsync<Task>("SELECT * FROM tasks ");
+
+      setTasks(allRows);
+    }
+
+    fetchTasks();
+  }, []);
 
   return (
     <View>

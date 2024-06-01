@@ -3,16 +3,14 @@ import React, { useState } from "react";
 import { Text, TextInput, StyleSheet, View, Pressable } from "react-native";
 
 export default function Home({ navigation }) {
+  const db = useSQLiteContext();
   const [inputText, setInputText] = useState("");
 
   async function insertTask(task) {
-    const db = useSQLiteContext();
-
     const result = await db.runAsync(
       "INSERT INTO tasks (content,isDone) VALUES (?,?)",
       [task.content, task.isDone]
     );
-    console.log(result);
   }
 
   async function addHandler() {

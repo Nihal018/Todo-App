@@ -24,8 +24,8 @@ export default function App() {
 
   return (
     <NavigationContainer>
+      <StatusBar style="dark" />
       <SQLiteProvider databaseName="tasks.db" onInit={init}>
-        <StatusBar style="dark" />
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen
             name="Home"

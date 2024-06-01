@@ -3,7 +3,7 @@ import Task from "./Task";
 
 export default function TaskList({ tasks }) {
   return (
-    <View style={styles.listContainer}>
+    <View className="" style={styles.listContainer}>
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
@@ -15,9 +15,6 @@ export default function TaskList({ tasks }) {
 
 const styles = StyleSheet.create({
   listContainer: {
-    borderWidth: 2,
-    borderColor: "black",
-    marginTop: 12,
     marginHorizontal: 12,
   },
 });
