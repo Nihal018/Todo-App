@@ -4,7 +4,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 
-export default function TaskItem({ task }) {
+export default function TaskItem({ task, onDelete }) {
   const [done, setDone] = useState(task.isDone);
   const db = useSQLiteContext();
 
@@ -14,10 +14,6 @@ export default function TaskItem({ task }) {
       done,
       task.id,
     ]);
-  }
-
-  function deleteTask() {
-    db.runSync("DELETE FROM Tasks WHERE id = ?", [task.id]);
   }
 
   function toggle() {
@@ -31,18 +27,31 @@ export default function TaskItem({ task }) {
   }
 
   return (
-    <Pressable
-      style={({ pressed }) => [styles.itemContainer, pressed && styles.pressed]}
-      onPress={toggle}
-    >
-      <View className="mx-2">{icon}</View>
+    <View className="flex-1 flex-row justify-between">
+      <Pressable
+        style={({ pressed }) => [
+          styles.itemContainer,
+          pressed && styles.pressed,
+        ]}
+        onPress={toggle}
+      >
+        <View className="mx-2">{icon}</View>
 
-      <View className="flex-1 flex-row justify-between  ml-2 text-left">
-        <Text className=" font-bold">
-          {task.content} - {task.category}
+        <Text className="mb-1 ml-2 font-bold " style={styles.text}>
+          {task.content}
         </Text>
-      </View>
-    </Pressable>
+      </Pressable>
+
+      <Pressable
+        onPress={() => onDelete(task.id)}
+        style={({ pressed }) => [pressed && styles.pressed]}
+        className="rounded-lg bg-red-600  mt-4 py-1 px-4 mx-4 h-8"
+      >
+        <Text className="text-white" style={styles.text}>
+          Delete
+        </Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -57,16 +66,9 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.5,
+  },
+  text: {
+    fontSize: 16,
   },
 });
-
-/* <View>
-        <Pressable
-          onPress={deleteTask}
-          style={({ pressed }) => [pressed && styles.pressed]}
-          className="rounded-lg bg-red-600  py-2 px-4 mx-4"
-        >
-          <Text className="text-white text-xl">Delete</Text>
-        </Pressable>
-      </View> */

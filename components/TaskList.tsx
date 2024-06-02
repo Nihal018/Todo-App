@@ -21,10 +21,30 @@ export default function TaskList({ cat }) {
     }
 
     fetchTasks();
-  }, []);
+  }, [db]);
 
   function toggle() {
     setIsDisplayed(!isDisplayed);
+  }
+
+  function onDelete(id) {
+    setTasks((curState) => {
+      const taskItemIndex = curState.findIndex((item) => item.id === id);
+
+      if (taskItemIndex != -1) curState.splice(taskItemIndex, 1);
+
+      return curState;
+    });
+
+    function deleteTask() {
+      db.runAsync("DELETE FROM Tasks WHERE id = ?", [id])
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((err) => console.log("Error:", err));
+    }
+
+    deleteTask();
   }
 
   if (!isDisplayed) {
@@ -63,7 +83,9 @@ export default function TaskList({ cat }) {
         <FlatList
           data={tasks}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TaskItem task={item} />}
+          renderItem={({ item }) => (
+            <TaskItem task={item} onDelete={onDelete} />
+          )}
         />
       </View>
     </View>
