@@ -45,19 +45,20 @@ export default function TaskList({ cat }) {
   }
 
   return (
-    <Pressable
-      onPress={toggle}
-      style={({ pressed }) => [pressed && styles.pressed]}
-    >
-      <View className="flex-row justify-start">
+    <View className="">
+      <Pressable
+        onPress={toggle}
+        style={({ pressed }) => [pressed && styles.pressed]}
+        className="flex-row justify-start"
+      >
         <View className="pt-3 ml-7">
           <AntDesign name="folderopen" size={24} color="black" />
         </View>
-
         <View style={styles.listContainer}>
           <Text className="font-bold text-xl px-4 py-2">{cat.category}</Text>
         </View>
-      </View>
+      </Pressable>
+
       <View className="ml-4" style={styles.listContainer}>
         <FlatList
           data={tasks}
@@ -65,7 +66,7 @@ export default function TaskList({ cat }) {
           renderItem={({ item }) => <TaskItem task={item} />}
         />
       </View>
-    </Pressable>
+    </View>
   );
 }
 

@@ -16,6 +16,10 @@ export default function TaskItem({ task }) {
     ]);
   }
 
+  function deleteTask() {
+    db.runSync("DELETE FROM Tasks WHERE id = ?", [task.id]);
+  }
+
   function toggle() {
     // add functionality to update database
     setDone(!done);
@@ -33,7 +37,7 @@ export default function TaskItem({ task }) {
     >
       <View className="mx-2">{icon}</View>
 
-      <View className="flex-1 flex-row ml-2 text-left">
+      <View className="flex-1 flex-row justify-between  ml-2 text-left">
         <Text className=" font-bold">
           {task.content} - {task.category}
         </Text>
@@ -56,3 +60,13 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
 });
+
+/* <View>
+        <Pressable
+          onPress={deleteTask}
+          style={({ pressed }) => [pressed && styles.pressed]}
+          className="rounded-lg bg-red-600  py-2 px-4 mx-4"
+        >
+          <Text className="text-white text-xl">Delete</Text>
+        </Pressable>
+      </View> */
