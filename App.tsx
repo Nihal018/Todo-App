@@ -7,11 +7,11 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./screens/Home";
 import AllTasks from "./screens/AllTasks";
 import { useEffect, useState } from "react";
+import TasksContextProvider from "./store/tasks-context";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [dbInitialized, setDbInitialized] = useState(false);
   async function init() {
     const db = await SQLite.openDatabaseAsync("Tasks.db");
     await db.execAsync(`
@@ -24,27 +24,29 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style="dark" />
-      <SQLiteProvider databaseName="Tasks.db" onInit={init}>
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="AllTasks"
-            component={AllTasks}
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack.Navigator>
-      </SQLiteProvider>
-    </NavigationContainer>
+    <TasksContextProvider>
+      <NavigationContainer>
+        <StatusBar style="dark" />
+        <SQLiteProvider databaseName="Tasks.db" onInit={init}>
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen
+              name="Home"
+              component={Home}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="AllTasks"
+              component={AllTasks}
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack.Navigator>
+        </SQLiteProvider>
+      </NavigationContainer>
+    </TasksContextProvider>
   );
 }
 

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Text, Button, View, FlatList } from "react-native";
 import TaskList from "../components/TaskList";
 import { useSQLiteContext } from "expo-sqlite";
 import { Task } from "../models/tasks";
+import { TasksContext } from "../store/tasks-context";
 
 interface Cat {
   category: string;
@@ -10,25 +11,22 @@ interface Cat {
 
 export default function AllTasks() {
   const [categs, setCategs] = useState<Cat[]>([]);
+  const TaskCxt = useContext(TasksContext);
 
   const db = useSQLiteContext();
 
   useEffect(() => {
+    TaskCxt.fetchTasks();
+
     async function fetchCats() {
       const allCategs = await db.getAllAsync<Cat>(
         "SELECT category FROM Tasks GROUP BY category"
       );
       setCategs(allCategs);
-
-      // for(const cat of allCategs){
-      //   const categTasks =await db.getAllAsync<Task>("SELECT * FROM Tasks WHERE category = ? ",[cat.category]);
-
-      //   setCategs((curState)=>{return(     )    })
-      // }
     }
 
     fetchCats();
-  }, []);
+  }, [TaskCxt, db]);
 
   console.log(categs);
 

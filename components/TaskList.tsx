@@ -1,50 +1,27 @@
 import { FlatList, View, Text, StyleSheet, Pressable } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import TaskItem from "./TaskItem";
 import { Task } from "../models/tasks";
 import { AntDesign } from "@expo/vector-icons";
+import { TasksContext } from "../store/tasks-context";
 
 export default function TaskList({ cat }) {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const TaskCxt = useContext(TasksContext);
   const [isDisplayed, setIsDisplayed] = useState(false);
 
-  const db = useSQLiteContext();
-
-  useEffect(() => {
-    async function fetchTasks() {
-      const catTasks = await db.getAllAsync<Task>(
-        "SELECT * FROM Tasks WHERE category = ?",
-        [cat.category]
-      );
-      setTasks(catTasks);
-    }
-
-    fetchTasks();
-  }, [db]);
+  const tasks = TaskCxt.tasks.filter((item) => {
+    return item.category === cat;
+  });
 
   function toggle() {
     setIsDisplayed(!isDisplayed);
   }
 
-  function onDelete(id) {
-    setTasks((curState) => {
-      const taskItemIndex = curState.findIndex((item) => item.id === id);
-
-      if (taskItemIndex != -1) curState.splice(taskItemIndex, 1);
-
-      return curState;
-    });
-
-    function deleteTask() {
-      db.runAsync("DELETE FROM Tasks WHERE id = ?", [id])
-        .then((result) => {
-          console.log(result);
-        })
-        .catch((err) => console.log("Error:", err));
-    }
-
-    deleteTask();
+  function onDelete(id: number) {
+    const toDeleteTask = tasks.findIndex((item) => item.id === id);
+    tasks.splice(toDeleteTask, 1);
+    TaskCxt.deleteTask(id);
   }
 
   if (!isDisplayed) {

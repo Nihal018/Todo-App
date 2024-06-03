@@ -20,11 +20,12 @@ export default function TaskItem({ task, onDelete }) {
     // add functionality to update database
     setDone(!done);
   }
-  let icon = <Feather name="square" size={30} color="black" />;
 
-  if (done) {
-    icon = <AntDesign name="checksquareo" size={30} color="black" />;
-  }
+  let icon = done ? (
+    <AntDesign name="checksquareo" size={30} color="black" />
+  ) : (
+    <Feather name="square" size={30} color="black" />
+  );
 
   return (
     <View className="flex-1 flex-row justify-between">
