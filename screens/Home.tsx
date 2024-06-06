@@ -7,10 +7,6 @@ export default function Home({ navigation }) {
 
   const [inputText, setInputText] = useState("");
 
-  useEffect(() => {
-    TaskCxt.fetchTasks();
-  }, [TaskCxt]);
-
   function addHandler() {
     const arr = inputText.split("/");
     let cat = "";

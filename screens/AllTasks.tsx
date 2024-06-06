@@ -5,19 +5,16 @@ import { useSQLiteContext } from "expo-sqlite";
 import { Task } from "../models/tasks";
 import { TasksContext } from "../store/tasks-context";
 
-interface Cat {
+type Cat = {
   category: string;
-}
+};
 
 export default function AllTasks() {
-  const [categs, setCategs] = useState<Cat[]>([]);
-  const TaskCxt = useContext(TasksContext);
+  const [categs, setCategs] = useState<Cat[]>();
 
   const db = useSQLiteContext();
 
   useEffect(() => {
-    TaskCxt.fetchTasks();
-
     async function fetchCats() {
       const allCategs = await db.getAllAsync<Cat>(
         "SELECT category FROM Tasks GROUP BY category"
@@ -26,7 +23,7 @@ export default function AllTasks() {
     }
 
     fetchCats();
-  }, [TaskCxt, db]);
+  }, [db]);
 
   console.log(categs);
 

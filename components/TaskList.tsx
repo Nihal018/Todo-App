@@ -6,12 +6,18 @@ import { Task } from "../models/tasks";
 import { AntDesign } from "@expo/vector-icons";
 import { TasksContext } from "../store/tasks-context";
 
+type Cat = {
+  category: string;
+};
+
 export default function TaskList({ cat }) {
   const TaskCxt = useContext(TasksContext);
   const [isDisplayed, setIsDisplayed] = useState(false);
 
-  const tasks = TaskCxt.tasks.filter((item) => {
-    return item.category === cat;
+  const tasks = TaskCxt.tasks;
+
+  const catTasks = tasks.filter((item) => {
+    return item.category === cat.category;
   });
 
   function toggle() {
@@ -19,8 +25,6 @@ export default function TaskList({ cat }) {
   }
 
   function onDelete(id: number) {
-    const toDeleteTask = tasks.findIndex((item) => item.id === id);
-    tasks.splice(toDeleteTask, 1);
     TaskCxt.deleteTask(id);
   }
 
@@ -28,7 +32,10 @@ export default function TaskList({ cat }) {
     return (
       <Pressable
         onPress={toggle}
-        style={({ pressed }) => [pressed && styles.pressed]}
+        style={({ pressed }) => [
+          styles.pressableContainer,
+          pressed && styles.pressed,
+        ]}
         className="flex-row justify-start"
       >
         <View className="pt-3 ml-7">
@@ -58,8 +65,8 @@ export default function TaskList({ cat }) {
 
       <View className="ml-4" style={styles.listContainer}>
         <FlatList
-          data={tasks}
-          keyExtractor={(item) => item.id}
+          data={catTasks}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TaskItem task={item} onDelete={onDelete} />
           )}
@@ -72,6 +79,9 @@ export default function TaskList({ cat }) {
 const styles = StyleSheet.create({
   listContainer: {
     marginHorizontal: 12,
+  },
+  pressableContainer: {
+    marginTop: 10,
   },
   pressed: {
     opacity: 0.7,

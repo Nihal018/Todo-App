@@ -1,107 +1,132 @@
 import * as SQLite from "expo-sqlite";
 
-import { useReducer, createContext } from "react";
+import { useReducer, createContext, useEffect } from "react";
 
 import { Task } from "../models/tasks";
-
-const db = await SQLite.openDatabaseAsync("Tasks.db");
-
-async function init() {
-  await db.execAsync(`
-  CREATE TABLE IF NOT EXISTS Tasks(
-      id INTEGER PRIMARY KEY NOT NULL,
-      content TEXT NOT NULL,
-      isDone BOOLEAN NOT NULL,
-      category TEXT
-  )`);
-}
+import { useSQLiteContext } from "expo-sqlite";
 
 export const TasksContext = createContext({
   tasks: [] as Task[],
   addTask: (isDone: boolean, content: string, category: string) => {},
   updateTask: (task: Task) => {},
   deleteTask: (taskId: number) => {},
-  fetchTasks: () => {},
 });
 
-function taskReducer(state, action) {
+// Discriminated union
+type TaskAction =
+  | {
+      type: "UPDATE";
+      payload: {
+        task: Task;
+      };
+    }
+  | {
+      type: "ADD";
+      payload: {
+        task: Task;
+      };
+    }
+  | {
+      type: "DELETE";
+      payload: {
+        taskId: number;
+      };
+    }
+  | {
+      type: "INIT";
+      payload: {
+        tasks: Task[];
+      };
+    };
+
+function taskReducer(state: Task[], action: TaskAction): Task[] {
   switch (action.type) {
     case "ADD":
-      let id: number = -1;
-      db.runAsync(
-        "INSERT INTO Tasks (content,isDone,category) VALUES (?,?,?)",
-        [action.payload.content, action.payload.isDone, action.payload.category]
-      )
-        .then((result) => {
-          console.log(result);
-          id = result.lastInsertRowId;
-        })
-        .catch((err) => console.log(err));
-
-      return [{ ...action.payload, id: id }, ...state];
+      return [...state, action.payload.task];
 
     case "UPDATE":
-      db.runAsync(
-        "UPDATE Tasks SET isDone = ? category = ? content = ? WHERE id = ?",
-        [
-          action.payload.isDone,
-          action.payload.category,
-          action.payload.content,
-          action.payload.id,
-        ]
-      )
-        .then((result) => {
-          console.log(result);
-        })
-        .catch((err) => console.log(err));
-
       const updatedTaskIndex = state.findIndex(
-        (task: Task) => task.id === action.payload.id
+        (task: Task) => task.id === action.payload.task.id
       );
       const updatableTasks = [...state];
-      updatableTasks[updatedTaskIndex] = action.payload;
+      updatableTasks[updatedTaskIndex] = action.payload.task;
+
       return updatableTasks;
 
     case "DELETE":
-      db.runAsync("DELETE FROM Tasks WHERE id = ?", [action.payload])
-        .then((result) => {
-          console.log(result);
-        })
-        .catch((err) => console.log("Error:", err));
+      const newState = [...state];
+      return newState.filter((task: Task) => task.id !== action.payload.taskId);
 
-      return state.filter((task: Task) => task.id !== action.payload);
+    case "INIT":
+      const allTasks = action.payload.tasks;
+      return allTasks;
 
-    case "FETCH":
-      db.getAllAsync<Task>("SELECT * FROM Tasks ")
-        .then((result) => {
-          state = result;
-        })
-        .catch((err) => console.log("Error:", err));
-
+    default:
       return state;
   }
 }
 
-function TasksContextProvider({ children }) {
-  const [tasksState, dispatch] = useReducer(taskReducer, []);
+function TasksContextProvider({ children }: { children: React.ReactNode }) {
+  const [tasksState, dispatch] = useReducer(taskReducer, [] as Task[]);
+  const db = useSQLiteContext();
 
-  function addTask(isDone: boolean, content: string, category: string) {
-    dispatch({
-      type: "ADD",
-      payload: { isDone: isDone, content: content, category: category },
-    });
+  useEffect(() => {
+    async function fetchAllTasks() {
+      const temp = await db.getAllAsync<Task>("SELECT * FROM Tasks ");
+      dispatch({
+        type: "INIT",
+        payload: {
+          tasks: temp,
+        },
+      });
+    }
+    fetchAllTasks();
+  }, []);
+
+  async function addTask(isDone: boolean, content: string, category: string) {
+    const result = await db.runAsync(
+      "INSERT INTO Tasks (content,isDone,category) VALUES (?,?,?)",
+      [content, isDone, category]
+    );
+    console.log(result);
+    if (result.changes > 0) {
+      dispatch({
+        type: "ADD",
+        payload: {
+          task: {
+            isDone: isDone,
+            content: content,
+            category: category,
+            id: result.lastInsertRowId,
+          },
+        },
+      });
+    }
   }
 
-  function updateTask(task: Task) {
-    dispatch({ type: "UPDATE", payload: task });
-  }
+  const updateTask = async (task: Task) => {
+    const pending = db.runAsync(
+      "UPDATE Tasks SET isDone = ? category = ? content = ? WHERE id = ?",
+      [task.isDone, task.category, task.content, task.id]
+    );
+    const result = await pending;
+    console.log(result);
+    if (result.changes > 0) {
+      dispatch({
+        type: "UPDATE",
+        payload: { task: task },
+      });
+    }
+  };
 
-  function deleteTask(taskId: number) {
-    dispatch({ type: "DELETE", payload: taskId });
-  }
+  async function deleteTask(taskId: number) {
+    const result = await db.runAsync("DELETE FROM Tasks WHERE id = ?", [
+      taskId,
+    ]);
+    console.log(result);
 
-  function fetchTasks() {
-    dispatch({ type: "FETCH", payload: {} });
+    if (result.changes > 0)
+      dispatch({ type: "DELETE", payload: { taskId: taskId } });
   }
 
   const value = {
@@ -109,7 +134,6 @@ function TasksContextProvider({ children }) {
     addTask: addTask,
     updateTask: updateTask,
     deleteTask: deleteTask,
-    fetchTasks: fetchTasks,
   };
 
   return (

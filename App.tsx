@@ -6,8 +6,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./screens/Home";
 import AllTasks from "./screens/AllTasks";
-import { useEffect, useState } from "react";
-import TasksContextProvider from "./store/tasks-context";
+import { useContext, useEffect, useState } from "react";
+import TasksContextProvider, { TasksContext } from "./store/tasks-context";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,10 +24,10 @@ export default function App() {
   }
 
   return (
-    <TasksContextProvider>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <SQLiteProvider databaseName="Tasks.db" onInit={init}>
+    <SQLiteProvider databaseName="Tasks.db" onInit={init}>
+      <TasksContextProvider>
+        <NavigationContainer>
+          <StatusBar style="dark" />
           <Stack.Navigator initialRouteName="Home">
             <Stack.Screen
               name="Home"
@@ -44,9 +44,9 @@ export default function App() {
               }}
             />
           </Stack.Navigator>
-        </SQLiteProvider>
-      </NavigationContainer>
-    </TasksContextProvider>
+        </NavigationContainer>
+      </TasksContextProvider>
+    </SQLiteProvider>
   );
 }
 

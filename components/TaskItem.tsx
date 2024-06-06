@@ -1,23 +1,22 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { useState } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import { useContext, useState } from "react";
+import { TasksContext } from "../store/tasks-context";
 
 export default function TaskItem({ task, onDelete }) {
   const [done, setDone] = useState(task.isDone);
-  const db = useSQLiteContext();
+  const TaskCxt = useContext(TasksContext);
 
   // do updation when leaving all tasks screen
-  async function updateTask() {
-    await db.runAsync("UPDATE Tasks SET isDone = ? WHERE id = ?", [
-      done,
-      task.id,
-    ]);
-  }
-
   function toggle() {
     // add functionality to update database
+    TaskCxt.updateTask({
+      id: task.id,
+      category: task.category,
+      content: task.content,
+      isDone: !done,
+    });
     setDone(!done);
   }
 
