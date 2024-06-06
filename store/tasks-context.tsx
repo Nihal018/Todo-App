@@ -105,12 +105,10 @@ function TasksContextProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateTask = async (task: Task) => {
-    const pending = db.runAsync(
-      "UPDATE Tasks SET isDone = ? category = ? content = ? WHERE id = ?",
-      [task.isDone, task.category, task.content, task.id]
+    const result = await db.runAsync(
+      "UPDATE Tasks SET isDone = ? WHERE id = ?",
+      [task.isDone, task.id]
     );
-    const result = await pending;
-    console.log(result);
     if (result.changes > 0) {
       dispatch({
         type: "UPDATE",
