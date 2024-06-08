@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { Text, Button, View, FlatList } from "react-native";
 import TaskList from "../components/TaskList";
 import { useSQLiteContext } from "expo-sqlite";
-import { Task } from "../models/tasks";
-import { TasksContext } from "../store/tasks-context";
 
 type Cat = {
   category: string;

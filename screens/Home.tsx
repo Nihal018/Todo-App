@@ -1,8 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, StyleSheet, View, Pressable } from "react-native";
 import { TasksContext } from "../store/tasks-context";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function Home({ navigation }) {
+type RootStackParamList = {
+  Home: undefined;
+  AllTasks: undefined;
+};
+
+type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
+export default function Home({ navigation }: Props) {
   const TaskCxt = useContext(TasksContext);
 
   const [inputText, setInputText] = useState("");

@@ -6,10 +6,14 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./screens/Home";
 import AllTasks from "./screens/AllTasks";
-import { useContext, useEffect, useState } from "react";
 import TasksContextProvider, { TasksContext } from "./store/tasks-context";
 
-const Stack = createNativeStackNavigator();
+type RootStackParamList = {
+  Home: undefined;
+  AllTasks: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   async function init() {

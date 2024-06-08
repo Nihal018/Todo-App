@@ -3,8 +3,17 @@ import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useContext, useState } from "react";
 import { TasksContext } from "../store/tasks-context";
+import { Task } from "../models/tasks";
 
-export default function TaskItem({ task, onDelete }) {
+type deleteParam = (id: number) => void;
+
+export default function TaskItem({
+  task,
+  onDelete,
+}: {
+  task: Task;
+  onDelete: deleteParam;
+}) {
   const [done, setDone] = useState(task.isDone);
   const TaskCxt = useContext(TasksContext);
 

@@ -10,7 +10,7 @@ type Cat = {
   category: string;
 };
 
-export default function TaskList({ cat }) {
+export default function TaskList({ cat }: { cat: Cat }) {
   const TaskCxt = useContext(TasksContext);
   const [isDisplayed, setIsDisplayed] = useState(false);
 

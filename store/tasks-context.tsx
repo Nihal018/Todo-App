@@ -1,5 +1,3 @@
-import * as SQLite from "expo-sqlite";
-
 import { useReducer, createContext, useEffect } from "react";
 
 import { Task } from "../models/tasks";
