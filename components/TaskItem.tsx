@@ -1,44 +1,66 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { useState } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import { useContext, useState } from "react";
+import { TasksContext } from "../store/tasks-context";
+import { Task } from "../models/tasks";
 
-export default function TaskItem({ task }) {
+type deleteParam = (id: number) => void;
+
+export default function TaskItem({
+  task,
+  onDelete,
+}: {
+  task: Task;
+  onDelete: deleteParam;
+}) {
   const [done, setDone] = useState(task.isDone);
-  const db = useSQLiteContext();
+  const TaskCxt = useContext(TasksContext);
 
   // do updation when leaving all tasks screen
-  async function updateTask() {
-    await db.runAsync("UPDATE Tasks SET isDone = ? WHERE id = ?", [
-      done,
-      task.id,
-    ]);
-  }
-
   function toggle() {
     // add functionality to update database
+    TaskCxt.updateTask({
+      id: task.id,
+      category: task.category,
+      content: task.content,
+      isDone: !done,
+    });
     setDone(!done);
   }
-  let icon = <Feather name="square" size={30} color="black" />;
 
-  if (done) {
-    icon = <AntDesign name="checksquareo" size={30} color="black" />;
-  }
+  let icon = done ? (
+    <AntDesign name="checksquareo" size={30} color="black" />
+  ) : (
+    <Feather name="square" size={30} color="black" />
+  );
 
   return (
-    <Pressable
-      style={({ pressed }) => [styles.itemContainer, pressed && styles.pressed]}
-      onPress={toggle}
-    >
-      <View className="mx-2">{icon}</View>
+    <View className="flex-1 flex-row justify-between">
+      <Pressable
+        style={({ pressed }) => [
+          styles.itemContainer,
+          pressed && styles.pressed,
+        ]}
+        onPress={toggle}
+      >
+        <View className="mx-2">{icon}</View>
 
-      <View className="flex-1 flex-row ml-2 text-left">
-        <Text className=" font-bold">
-          {task.content} - {task.category}
+        <Text className="mb-1 ml-2 font-bold " style={styles.text}>
+          {task.content}
         </Text>
-      </View>
-    </Pressable>
+      </Pressable>
+
+      <Pressable
+        onPress={() => onDelete(task.id)}
+        style={({ pressed }) => [pressed && styles.pressed]}
+        className="rounded-lg bg-red-600  mt-4 py-1 px-4 mx-4 h-8"
+      >
+        <Text className="text-white" style={styles.text}>
+          Delete
+        </Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -53,6 +75,9 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.5,
+  },
+  text: {
+    fontSize: 16,
   },
 });

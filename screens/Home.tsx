@@ -1,19 +1,21 @@
-import { useSQLiteContext } from "expo-sqlite";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, StyleSheet, View, Pressable } from "react-native";
+import { TasksContext } from "../store/tasks-context";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export default function Home({ navigation }) {
-  const db = useSQLiteContext();
+type RootStackParamList = {
+  Home: undefined;
+  AllTasks: undefined;
+};
+
+type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
+export default function Home({ navigation }: Props) {
+  const TaskCxt = useContext(TasksContext);
+
   const [inputText, setInputText] = useState("");
 
-  async function insertTask(task) {
-    const result = await db.runAsync(
-      "INSERT INTO Tasks (content,isDone,category) VALUES (?,?,?)",
-      [task.content, task.isDone, task.category]
-    );
-  }
-
-  async function addHandler() {
+  function addHandler() {
     const arr = inputText.split("/");
     let cat = "";
     let content = "";
@@ -24,12 +26,7 @@ export default function Home({ navigation }) {
       content = arr[0].trim();
     }
 
-    const task = {
-      content: content,
-      isDone: false,
-      category: cat,
-    };
-    await insertTask(task);
+    TaskCxt.addTask(false, content, cat);
 
     navigation.navigate("AllTasks");
   }
